@@ -11,7 +11,7 @@ class Actvity_classifier():
         if self.config.model == 'ResNet50':
             self.model = resnet.ResNet50(include_top=True, weights='imagenet', input_tensor=None, input_shape=None, pooling='avg', classes=1000)
             model_config = self.model.get_config()
-            model_config['layers'][0]['config']['batch_input_shape'] = (None, 500, 500, 3)
+            model_config['layers'][0]['config']['batch_input_shape'] = (None, self.config.resize[0], self.config.resize[1], 3)
             model_config['layers'][-1]['config']['units'] = self.config.classes_num
             model_config['layers'][-1]['config']['activation'] = 'sigmoid'
             self.model = self.model.from_config(model_config)

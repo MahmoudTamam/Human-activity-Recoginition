@@ -36,44 +36,46 @@ class VOCDataLoader():
 
     def train_generator(self):
         #TODO: Add multiple persons support
-        np.random.shuffle(self.train_anns)
-        for batch_start in range(0, len(self.train_anns), self.config.batch_size):    
-            img_batch = []
-            ann_batch = []
-            for idx in range(batch_start, batch_start+self.config.batch_size):
-                person_idx = 0
-                if batch_start+self.config.batch_size > len(self.train_anns):
-                    break
-                item =  self.train_anns[idx]
-                img = cv2.imread(self.config.img_root+item['filename'])
-                mask = np.zeros(img.shape)[:,:,0]
-                #num_persons = item['num_persons']
-                #for idx in range(num_persons):#TODO:
-                #bbox = item['person'+str(person_idx)+'bbox']
-                #mask = cv2.rectangle(mask, (int(bbox[1]),int(bbox[3])), (int(bbox[0]),int(bbox[2])), 255,-1)
-                #if self.config.batch_size > 1:#Resize batch
-                img = cv2.resize(img, (self.config.resize[0], self.config.resize[1]))
-                #mask = cv2.resize(mask, (self.config.resize[0], self.config.resize[1]))
-                #img = np.concatenate((img, mask), axis=2)
-                ann = item['person'+str(person_idx)+'action']
-                img_batch.append(img)
-                ann_batch.append(ann)
-            img_batch = np.array(img_batch)
-            ann_batch = np.array(ann_batch)
-            yield img_batch, ann_batch
+        while True:
+            np.random.shuffle(self.train_anns)
+            for batch_start in range(0, len(self.train_anns), self.config.batch_size):    
+                img_batch = []
+                ann_batch = []
+                for idx in range(batch_start, batch_start+self.config.batch_size):
+                    person_idx = 0
+                    if batch_start+self.config.batch_size > len(self.train_anns):
+                        break
+                    item =  self.train_anns[idx]
+                    img = cv2.imread(self.config.img_root+item['filename'])
+                    mask = np.zeros(img.shape)[:,:,0]
+                    #num_persons = item['num_persons']
+                    #for idx in range(num_persons):#TODO:
+                    #bbox = item['person'+str(person_idx)+'bbox']
+                    #mask = cv2.rectangle(mask, (int(bbox[1]),int(bbox[3])), (int(bbox[0]),int(bbox[2])), 255,-1)
+                    #if self.config.batch_size > 1:#Resize batch
+                    img = cv2.resize(img, (self.config.resize[0], self.config.resize[1]))
+                    #mask = cv2.resize(mask, (self.config.resize[0], self.config.resize[1]))
+                    #img = np.concatenate((img, mask), axis=2)
+                    ann = item['person'+str(person_idx)+'action']
+                    img_batch.append(img)
+                    ann_batch.append(ann)
+                img_batch = np.array(img_batch)
+                ann_batch = np.array(ann_batch)
+                yield img_batch, ann_batch
 
     def valid_generator(self):
-        np.random.shuffle(self.valid_anns)
-        for item in self.valid_anns:
-            img = cv2.imread(self.config.img_root+item['filename'])
-            #mask = np.zeros(img.shape)[:,:,0]
-            num_persons = item['num_persons']
-            for idx in range(num_persons):
-                #bbox = item['person'+str(idx)+'bbox']
-                #mask = cv2.rectangle(mask, (bbox[1],bbox[3]), (bbox[0],bbox[2]), 255,-1)
-                #if self.config.batch_size > 1:#Resize batch
-                img = cv2.resize(img, (self.config.resize[0], self.config.resize[1]))
-                #mask = cv2.resize(mask, (self.config.resize[0], self.config.resize[1]))
-                #img = np.concatenate((img, mask), axis=2)
-                ann = item['person'+str(idx)+'action']
-            yield img, ann
+        while True:
+            np.random.shuffle(self.valid_anns)
+            for item in self.valid_anns:
+                img = cv2.imread(self.config.img_root+item['filename'])
+                #mask = np.zeros(img.shape)[:,:,0]
+                num_persons = item['num_persons']
+                for idx in range(num_persons):
+                    #bbox = item['person'+str(idx)+'bbox']
+                    #mask = cv2.rectangle(mask, (bbox[1],bbox[3]), (bbox[0],bbox[2]), 255,-1)
+                    #if self.config.batch_size > 1:#Resize batch
+                    img = cv2.resize(img, (self.config.resize[0], self.config.resize[1]))
+                    #mask = cv2.resize(mask, (self.config.resize[0], self.config.resize[1]))
+                    #img = np.concatenate((img, mask), axis=2)
+                    ann = item['person'+str(idx)+'action']
+                yield img, ann
