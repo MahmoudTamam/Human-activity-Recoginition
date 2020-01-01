@@ -14,7 +14,7 @@
   "mode": "train",
   "seed": 1337,
   "num_classes": 11,
-  "num_workers": 4,
+  "num_workers": 1,
   "batch_size": 1,
   "max_epoch": 100,
   "verbose_training": 1,

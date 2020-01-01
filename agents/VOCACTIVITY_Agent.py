@@ -90,7 +90,7 @@ class VOCACTIVITY_Agent(BaseAgent):
             validation_data = self.valid_generator,
             validation_steps = self.valid_iters,
             validation_freq = 1,
-            workers = 4,#self.config.num_workers,
+            workers = self.config.num_workers,
             use_multiprocessing = False,
             shuffle = True,
             initial_epoch = 0#TODO
