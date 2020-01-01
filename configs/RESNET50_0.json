@@ -1,0 +1,31 @@
+{
+  "exp_name": "RESNET50_0",
+  "agent": "VOCACTIVITY_Agent",
+  "model": "ResNet50",
+  "classes_num": 11,
+  "data_loader": "VOCDataLoader",
+  "img_root": "data/images/",
+  "train_pickle": "data/train_data.pickle",
+  "valid_pickle": "data/valid_data.pickle",
+  "resize": [500, 500],
+  "person_num": 1,
+
+  "optimizer": "Adam",
+  "mode": "train",
+  "seed": 1337,
+  "num_classes": 11,
+  "num_workers": 4,
+  "batch_size": 1,
+  "max_epoch": 100,
+  "verbose_training": 1,
+  "use_scheduler": false,
+  
+  "callbacks":{
+    "checkpoint_monitor": "val_loss",
+    "checkpoint_mode": "min",
+    "checkpoint_save_best_only": true,
+   "checkpoint_save_weights_only": true,
+    "checkpoint_verbose": true,
+    "tensorboard_write_graph": true
+  }
+}
