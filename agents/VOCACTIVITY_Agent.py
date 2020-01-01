@@ -3,7 +3,7 @@ from graphs.models.classifier import Actvity_classifier
 from data_loader.voc import VOCDataLoader
 from tqdm import tqdm
 from keras.callbacks import ModelCheckpoint, TensorBoard, LearningRateScheduler
-from keras import metrics
+from keras import metrics, optimizers
 import os
 
 class VOCACTIVITY_Agent(BaseAgent):
@@ -23,9 +23,14 @@ class VOCACTIVITY_Agent(BaseAgent):
 
         self.model = Actvity_classifier(self.config).model
 
+        if self.config.optimizer == 'Adam':
+            self.optimizer = optimizers.Adam(learning_rate=self.config.learning_rate)
+        else:
+            raise NotImplementedError("Optimizer not yet implemented")
+
         self.model.compile(
               loss='binary_crossentropy',
-              optimizer=self.config.optimizer,
+              optimizer=self.optimizer,
               metrics=['accuracy'])
 
         """ init Dataloader """
