@@ -5,7 +5,7 @@ from tqdm import tqdm
 from keras.callbacks import ModelCheckpoint, TensorBoard, LearningRateScheduler
 from keras import metrics, optimizers
 from keras.optimizers import SGD, Adam
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 import tensorflow as tf
 import numpy as np
 import os
@@ -102,8 +102,12 @@ class UCI_Agent(BaseAgent):
         )
         preds = np.argmax(preds, axis=1)
         cm = confusion_matrix(self.data_loader.Y_test, preds)
+        acc_samples = accuracy_score(self.data_loader.Y_test, preds, normalize=False)
+        acc_score = accuracy_score(self.data_loader.Y_test, preds, normalize=True)
         print(cm)
         print(classification_report(self.data_loader.Y_test, preds))
+        print(acc_samples)
+        print(acc_score)
 
     def load_checkpoint(self):
         self.model.load_weights(self.config.checkpoint_dir+self.config.best_file)

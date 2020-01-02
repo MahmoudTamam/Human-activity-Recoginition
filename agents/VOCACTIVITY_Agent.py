@@ -5,7 +5,7 @@ from tqdm import tqdm
 from keras.callbacks import ModelCheckpoint, TensorBoard, LearningRateScheduler
 from keras import metrics, optimizers
 from keras.optimizers import SGD, Adam
-from sklearn.metrics import multilabel_confusion_matrix, classification_report
+from sklearn.metrics import multilabel_confusion_matrix, classification_report, confusion_matrix
 import tensorflow as tf
 import numpy as np
 import os
@@ -115,32 +115,20 @@ class VOCACTIVITY_Agent(BaseAgent):
     def test(self):
         
         self.load_checkpoint()
-        self.data_loader.config.batch_size = 1
-        preds = self.model.predict_generator(
-            generator = self.train_generator,
-            steps = len(self.data_loader.train_true),
-            verbose = 1
-        )
-        preds = np.where(preds > 0.5, 1, 0)
-
-        cm = multilabel_confusion_matrix(self.data_loader.train_true, preds)
-        
-        print(np.unique(preds, return_counts=True))
-        print(np.unique(self.data_loader.train_true, return_counts=True))
-        print(cm)
-        print(classification_report(self.data_loader.train_true, preds))
 
         preds = self.model.predict_generator(
             generator = self.valid_generator,
             steps = self.valid_iters,
             verbose = 1
         )
-        preds = np.where(preds >= 0.5, 1, 0)
 
-        cm = multilabel_confusion_matrix(self.data_loader.valid_true, preds)
-
-        print(np.unique(preds, return_counts=True))
-        print(np.unique(self.data_loader.valid_true, return_counts=True))
+        if self.config.single_label == True:
+            preds = np.argmax(preds, axis=1)
+            cm = confusion_matrix(self.data_loader.valid_true, preds)
+        else:
+            preds = np.where(preds >= 0.5, 1, 0)
+            cm = multilabel_confusion_matrix(self.data_loader.valid_true, preds)
+        
         print(cm)
         print(classification_report(self.data_loader.valid_true, preds))
     
