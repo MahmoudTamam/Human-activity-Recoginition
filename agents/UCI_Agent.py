@@ -5,7 +5,7 @@ from tqdm import tqdm
 from keras.callbacks import ModelCheckpoint, TensorBoard, LearningRateScheduler
 from keras import metrics, optimizers
 from keras.optimizers import SGD, Adam
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, confusion_matrix
 import tensorflow as tf
 import numpy as np
 import os
@@ -32,7 +32,7 @@ class UCI_Agent(BaseAgent):
         self.model.compile(
             loss='sparse_categorical_crossentropy',
             optimizer=Adam(lr=self.config.learning_rate),
-            metrics=['accuracy'])
+            metrics=['acc'])
         
         """ init Dataloader """
         self.data_loader = UCIDataLoader(self.config)
@@ -45,7 +45,7 @@ class UCI_Agent(BaseAgent):
     def init_callbacks(self):
         self.callbacks.append(
             ModelCheckpoint(
-                filepath=os.path.join(self.config.checkpoint_dir, '%s-{epoch:02d}-{val_accuracy:.2f}.hdf5' % self.config.exp_name),
+                filepath=os.path.join(self.config.checkpoint_dir, '%s-{epoch:02d}-{val_acc:.2f}.hdf5' % self.config.exp_name),
                 monitor=self.config.callbacks.checkpoint_monitor, 
                 mode=self.config.callbacks.checkpoint_mode,
                 save_best_only=self.config.callbacks.checkpoint_save_best_only,
@@ -93,8 +93,18 @@ class UCI_Agent(BaseAgent):
         )
     
     def test(self):
-        pass
-    
+        self.load_checkpoint()
+
+        preds = self.model.predict(
+            x = self.data_loader.X_test,
+            batch_size= self.config.batch_size,
+            verbose = 1
+        )
+        preds = np.argmax(preds, axis=1)
+        cm = confusion_matrix(self.data_loader.Y_test, preds)
+        print(cm)
+        print(classification_report(self.data_loader.Y_test, preds))
+
     def load_checkpoint(self):
         self.model.load_weights(self.config.checkpoint_dir+self.config.best_file)
 
