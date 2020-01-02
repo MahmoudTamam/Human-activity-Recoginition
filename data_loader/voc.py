@@ -94,6 +94,7 @@ class VOCDataLoader():
                     if self.config.crop_images == True:
                         img = img[int(bbox[3]):int(bbox[2]), int(bbox[1]):int(bbox[0])]
                     img = cv2.resize(img, (self.config.resize[0], self.config.resize[1]))
+                    img = self.augmentor.random_transform(img)
                     ann = item['person'+str(person_idx)+'action']
                     img_batch.append(img)
                     ann_batch.append(ann)
