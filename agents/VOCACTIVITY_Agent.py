@@ -4,13 +4,19 @@ from data_loader.voc import VOCDataLoader
 from tqdm import tqdm
 from keras.callbacks import ModelCheckpoint, TensorBoard, LearningRateScheduler
 from keras import metrics, optimizers
+from keras.optimizers import SGD, Adam
+from sklearn.metrics import multilabel_confusion_matrix, classification_report
+import tensorflow as tf
+import numpy as np
 import os
+import keras
 
 class VOCACTIVITY_Agent(BaseAgent):
     def __init__(self, config):
         super().__init__(config)
         self.config = config
         self.config.summary_dir = self.config.summary_dir.replace('/','\\')
+
         """ Init Callbacks """
         self.callbacks = []
         self.init_callbacks()
@@ -22,16 +28,17 @@ class VOCACTIVITY_Agent(BaseAgent):
         self.val_acc = []
 
         self.model = Actvity_classifier(self.config).model
-
-        if self.config.optimizer == 'Adam':
-            self.optimizer = optimizers.Adam(learning_rate=self.config.learning_rate)
+        
+        if self.config.single_label == True:
+            self.model.compile(
+                loss='sparse_categorical_crossentropy',
+                optimizer=Adam(lr=self.config.learning_rate),
+                metrics=['accuracy'])
         else:
-            raise NotImplementedError("Optimizer not yet implemented")
-
-        self.model.compile(
-              loss='binary_crossentropy',
-              optimizer=self.optimizer,
-              metrics=['accuracy'])
+            self.model.compile(
+                loss='binary_crossentropy',
+                optimizer=Adam(lr=self.config.learning_rate),
+                metrics=['accuracy'])
 
         """ init Dataloader """
         self.data_loader = VOCDataLoader(self.config)
@@ -97,7 +104,7 @@ class VOCACTIVITY_Agent(BaseAgent):
             validation_freq = 1,
             workers = self.config.num_workers,
             use_multiprocessing = False,
-            shuffle = True,
+            shuffle = False,
             initial_epoch = 0#TODO
         )
         self.loss.extend(history.history['loss'])
@@ -106,7 +113,39 @@ class VOCACTIVITY_Agent(BaseAgent):
         self.val_acc.extend(history.history['val_acc'])
 
     def test(self):
-        pass
+        
+        self.load_checkpoint()
+        self.data_loader.config.batch_size = 1
+        preds = self.model.predict_generator(
+            generator = self.train_generator,
+            steps = len(self.data_loader.train_true),
+            verbose = 1
+        )
+        preds = np.where(preds > 0.5, 1, 0)
+
+        cm = multilabel_confusion_matrix(self.data_loader.train_true, preds)
+        
+        print(np.unique(preds, return_counts=True))
+        print(np.unique(self.data_loader.train_true, return_counts=True))
+        print(cm)
+        print(classification_report(self.data_loader.train_true, preds))
+
+        preds = self.model.predict_generator(
+            generator = self.valid_generator,
+            steps = self.valid_iters,
+            verbose = 1
+        )
+        preds = np.where(preds >= 0.5, 1, 0)
+
+        cm = multilabel_confusion_matrix(self.data_loader.valid_true, preds)
+
+        print(np.unique(preds, return_counts=True))
+        print(np.unique(self.data_loader.valid_true, return_counts=True))
+        print(cm)
+        print(classification_report(self.data_loader.valid_true, preds))
+    
+    def load_checkpoint(self):
+        self.model.load_weights(self.config.checkpoint_dir+self.config.best_file)
 
     def finalize(self):
         """
