@@ -1,0 +1,28 @@
+{
+  "exp_name": "UC_FC_0",
+  "agent": "UCI_Agent",
+  "model": "FC",
+
+  "classes_num": 6,
+  "data_loader": "UCIDataLoader",
+
+  "optimizer": "Adam",
+  "learning_rate": 1e-5,
+  "mode": "train",
+  "seed": 1337,
+  "input_features": 561,
+  "num_workers": 4,
+  "batch_size": 512,
+  "max_epoch": 50,
+  "verbose_training": 1,
+  "use_scheduler": false,
+  
+  "callbacks":{
+    "checkpoint_monitor": "val_acc",
+    "checkpoint_mode": "max",
+    "checkpoint_save_best_only": true,
+   "checkpoint_save_weights_only": true,
+    "checkpoint_verbose": true,
+    "tensorboard_write_graph": true
+  }
+}
