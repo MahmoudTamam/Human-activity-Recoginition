@@ -103,20 +103,19 @@ class VOCDataLoader():
                 yield img_batch, ann_batch
 
     def valid_generator(self):
-        while True:
-            np.random.shuffle(self.valid_anns)
-            for item in self.valid_anns:
-                img_batch = []
-                ann_batch = []
-                person_idx = 0
-                img = cv2.imread(self.config.img_root+item['filename'])
-                bbox = item['person'+str(person_idx)+'bbox']
-                if self.config.crop_images == True:
-                    img = img[int(bbox[3]):int(bbox[2]), int(bbox[1]):int(bbox[0])]
-                img = cv2.resize(img, (self.config.resize[0], self.config.resize[1]))
-                ann = item['person'+str(person_idx)+'action']
-                img_batch.append(img)
-                ann_batch.append(ann)
-                img_batch = np.array(img_batch)
-                ann_batch = np.array(ann_batch)
-                yield img_batch, ann_batch
+      while True:
+          for item in self.valid_anns:
+              img_batch = []
+              ann_batch = []
+              person_idx = 0
+              img = cv2.imread(self.config.img_root+item['filename'])
+              bbox = item['person'+str(person_idx)+'bbox']
+              if self.config.crop_images == True:
+                  img = img[int(bbox[3]):int(bbox[2]), int(bbox[1]):int(bbox[0])]
+              img = cv2.resize(img, (self.config.resize[0], self.config.resize[1]))
+              ann = item['person'+str(person_idx)+'action']
+              img_batch.append(img)
+              ann_batch.append(ann)
+              img_batch = np.array(img_batch)
+              ann_batch = np.array(ann_batch)
+              yield img_batch, ann_batch

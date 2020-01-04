@@ -1,21 +1,20 @@
 from agents.base import BaseAgent
 from graphs.models.classifier import Actvity_classifier
-from data_loader.voc import VOCDataLoader
+from data_loader.state_farm import SF_DataGenerator
 from tqdm import tqdm
 from keras.callbacks import ModelCheckpoint, TensorBoard, LearningRateScheduler
 from keras import metrics, optimizers
 from keras.optimizers import SGD, Adam
-from keras.models import load_model
-from sklearn.metrics import accuracy_score, confusion_matrix, multilabel_confusion_matrix, classification_report
+from sklearn.metrics import multilabel_confusion_matrix, classification_report, confusion_matrix, accuracy_score
+import tensorflow as tf
 import numpy as np
 import os
 import keras
 
-class VOCACTIVITY_Agent(BaseAgent):
+class SF_Agent(BaseAgent):
     def __init__(self, config):
         super().__init__(config)
         self.config = config
-        #self.config.summary_dir = self.config.summary_dir.replace('/','\\')
 
         """ Init Callbacks """
         self.callbacks = []
@@ -29,26 +28,15 @@ class VOCACTIVITY_Agent(BaseAgent):
 
         self.model = Actvity_classifier(self.config).model
         
-        if self.config.single_label == True:
-            self.model.compile(
-                loss='sparse_categorical_crossentropy',
+        self.model.compile(
+                loss='categorical_crossentropy',
                 optimizer=Adam(lr=self.config.learning_rate),
                 metrics=['accuracy'])
-        else:
-            self.model.compile(
-                loss='binary_crossentropy',
-                optimizer=Adam(lr=self.config.learning_rate),
-                metrics=['accuracy'])
-        
+
         """ init Dataloader """
-        self.data_loader = VOCDataLoader(self.config)
-
-        self.train_generator = self.data_loader.train_generator()
-        self.valid_generator = self.data_loader.valid_generator()
-
-        self.train_iters = self.data_loader.train_iters
-        self.valid_iters = self.data_loader.valid_iters
-
+        self.train_generator = SF_DataGenerator(self.config, True)
+        self.valid_generator = SF_DataGenerator(self.config)
+        
         """ initialize training counters """
         self.current_epoch = 0
         self.current_iteration = 0
@@ -57,7 +45,7 @@ class VOCACTIVITY_Agent(BaseAgent):
     def init_callbacks(self):
         self.callbacks.append(
             ModelCheckpoint(
-                filepath=os.path.join(self.config.checkpoint_dir, '%s-{epoch:02d}-{val_acc:.2f}.h5' % self.config.exp_name),
+                filepath=os.path.join(self.config.checkpoint_dir, '%s-{epoch:02d}-{val_acc:.2f}.hdf5' % self.config.exp_name),
                 monitor=self.config.callbacks.checkpoint_monitor, #TODO: Change into accuracy
                 mode=self.config.callbacks.checkpoint_mode, #TODO: Change into  max with accuracy
                 save_best_only=self.config.callbacks.checkpoint_save_best_only,
@@ -95,12 +83,9 @@ class VOCACTIVITY_Agent(BaseAgent):
     def train(self):
         history = self.model.fit_generator(
             generator = self.train_generator,
-            steps_per_epoch = self.train_iters,
             epochs=self.config.max_epoch,
             verbose=self.config.verbose_training,
             callbacks=self.callbacks,
-            validation_data = self.valid_generator,
-            validation_steps = self.valid_iters,
             validation_freq = 1,
             workers = self.config.num_workers,
             use_multiprocessing = False,
@@ -113,39 +98,40 @@ class VOCACTIVITY_Agent(BaseAgent):
         self.val_acc.extend(history.history['val_acc'])
 
     def test(self):
+        
         self.load_checkpoint()
         
-        print (self.model.evaluate_generator(
+        print( self.model.evaluate_generator(
             generator = self.valid_generator,
             steps = self.valid_iters,
             verbose = 1,
             use_multiprocessing = False,
             workers = self.config.num_workers
         ))
-        
-        self.valid_generator = self.data_loader.valid_generator()
+
         preds = self.model.predict_generator(
             generator = self.valid_generator,
             steps = self.valid_iters,
-            verbose = 1,
-            workers=self.config.num_workers, 
-            use_multiprocessing=False
+            verbose = 1
         )
-        
+
+        valid_true = self.data_loader.valid_data[:,1]
+        valid_true = keras.utils.to_categorical(valid_true, num_classes=self.config.num_classes)
+
         if self.config.single_label == True:
             preds = np.argmax(preds, axis=1)
-            cm = confusion_matrix(self.data_loader.valid_true, preds)
+            cm = confusion_matrix(valid_true, preds)
         else:
             preds = np.where(preds >= 0.5, 1, 0)
-            cm = multilabel_confusion_matrix(self.data_loader.valid_true, preds)
+            cm = multilabel_confusion_matrix(valid_true, preds)
         
         print(cm)
-        print(classification_report(self.data_loader.valid_true, preds))
-        acc_samples = accuracy_score(self.data_loader.valid_true, preds, normalize=False)
-        acc_score = accuracy_score(self.data_loader.valid_true, preds, normalize=True)
+        print(classification_report(valid_true, preds))
+        acc_samples = accuracy_score(valid_true, preds, normalize=False)
+        acc_score = accuracy_score(valid_true, preds, normalize=True)
         print(acc_samples)
         print(acc_score)
-
+    
     def load_checkpoint(self):
         self.model = load_model(self.config.checkpoint_dir+self.config.best_file)
 
