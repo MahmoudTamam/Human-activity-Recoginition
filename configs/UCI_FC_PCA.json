@@ -1,19 +1,20 @@
 {
-  "exp_name": "UC_FC_0",
+  "exp_name": "UC_FC_PCA",
   "agent": "UCI_Agent",
   "model": "FC",
 
   "classes_num": 6,
   "data_loader": "UCIDataLoader",
+  "PCA_applied": true,
 
   "optimizer": "Adam",
   "learning_rate": 1e-5,
   "mode": "train",
   "seed": 1337,
-  "input_features": 561,
+  "input_features": 155,
   "num_workers": 4,
   "batch_size": 512,
-  "max_epoch": 200,
+  "max_epoch": 250,
   "verbose_training": 1,
   "use_scheduler": false,
   
