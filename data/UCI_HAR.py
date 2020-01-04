@@ -6,9 +6,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 
-#os.chdir(os.path.dirname(os.path.abspath(__file__)))
-#os.chdir("../..")
-os.chdir('D:/Masters/MachineLearning/Project')
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+os.chdir("../..")
+#os.chdir('D:/Masters/MachineLearning/Project')
 
 features = list()
 with open('UCI HAR Dataset/features.txt') as f:
