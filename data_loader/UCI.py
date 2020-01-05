@@ -7,7 +7,7 @@ class UCIDataLoader():
     def __init__(self, config):
         self.config = config
         #load data #TODO: add into configuration
-        if self.config.model == 'LSTM':
+        if self.config.model == 'LSTM' or self.config.model == 'CNN' or self.config.model == 'CNN_LSTM':
             self.X_train = np.float32(np.load("data/inertial_X_train.npy"))
             self.Y_train = np.int_(np.load("data/inertial_Y_train.npy"))-1
             self.X_valid = np.float32(np.load("data/inertial_X_valid.npy"))
@@ -43,4 +43,4 @@ class UCIDataLoader():
         self.valid_iters = ( self.valid_len + self.config.batch_size ) // self.config.batch_size
         self.test_iters = ( self.test_len + self.config.batch_size ) // self.config.batch_size
 
-        #TODO: Normalization of features [0,1] or [-1,1]
+        #TODO: Normalization of features [0,1] or [-1,1] #Update: Data already normalized

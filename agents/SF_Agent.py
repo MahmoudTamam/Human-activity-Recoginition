@@ -10,6 +10,7 @@ import tensorflow as tf
 import numpy as np
 import os
 import keras
+from keras.models import load_model
 
 class SF_Agent(BaseAgent):
     def __init__(self, config):
@@ -84,6 +85,7 @@ class SF_Agent(BaseAgent):
         history = self.model.fit_generator(
             generator = self.train_generator,
             epochs=self.config.max_epoch,
+            validation_data = self.valid_generator,
             verbose=self.config.verbose_training,
             callbacks=self.callbacks,
             validation_freq = 1,
@@ -103,7 +105,6 @@ class SF_Agent(BaseAgent):
         
         print( self.model.evaluate_generator(
             generator = self.valid_generator,
-            steps = self.valid_iters,
             verbose = 1,
             use_multiprocessing = False,
             workers = self.config.num_workers
@@ -111,12 +112,10 @@ class SF_Agent(BaseAgent):
 
         preds = self.model.predict_generator(
             generator = self.valid_generator,
-            steps = self.valid_iters,
             verbose = 1
         )
 
-        valid_true = self.data_loader.valid_data[:,1]
-        valid_true = keras.utils.to_categorical(valid_true, num_classes=self.config.num_classes)
+        valid_true = [int(x) for x in self.valid_generator.data[:,1]]
 
         if self.config.single_label == True:
             preds = np.argmax(preds, axis=1)

@@ -7,7 +7,7 @@ import seaborn as sns
 import os
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
-os.chdir("../..")
+#os.chdir("../..")
 #os.chdir('D:/Masters/MachineLearning/Project')
 
 features = list()
@@ -31,15 +31,15 @@ print('Reduced number of features:', trainPca.shape[1])
 X_train, X_valid, Y_train, Y_valid = train_test_split(train, y_train, test_size=0.2, random_state=42)
 X_trainPca, X_validPca, Y_trainPca, Y_validPca = train_test_split(trainPca, y_train, test_size=0.2, random_state=42)
 
-np.save("Human-activity-Recoginition/data/X_train.npy", X_train)
-np.save("Human-activity-Recoginition/data/Y_train.npy", Y_train)
-np.save("Human-activity-Recoginition/data/X_valid.npy", X_valid)
-np.save("Human-activity-Recoginition/data/Y_valid.npy", Y_valid)
+np.save("X_train.npy", X_train)
+np.save("Y_train.npy", Y_train)
+np.save("X_valid.npy", X_valid)
+np.save("Y_valid.npy", Y_valid)
 
-np.save("Human-activity-Recoginition/data/X_trainPca.npy", X_trainPca)
-np.save("Human-activity-Recoginition/data/Y_trainPca.npy", Y_trainPca)
-np.save("Human-activity-Recoginition/data/X_validPca.npy", X_validPca)
-np.save("Human-activity-Recoginition/data/Y_validPca.npy", Y_validPca)
+np.save("X_trainPca.npy", X_trainPca)
+np.save("Y_trainPca.npy", Y_trainPca)
+np.save("X_validPca.npy", X_validPca)
+np.save("Y_validPca.npy", Y_validPca)
 
 test = pd.read_csv('UCI HAR Dataset/test/X_test.txt',sep='\s+', header=None, names=features)
 testPca = pca.transform(test)
@@ -50,11 +50,11 @@ y_test_labels = y_train.map({1: 'WALKING', 2:'WALKING_UPSTAIRS',3:'WALKING_DOWNS
 #test.dropna()
 #test.drop_duplicates()
 
-np.save("Human-activity-Recoginition/data/X_test.npy", test)
-np.save("Human-activity-Recoginition/data/Y_test.npy", y_test)
+np.save("X_test.npy", test)
+np.save("Y_test.npy", y_test)
 
-np.save("Human-activity-Recoginition/data/X_testPca.npy", testPca)
-np.save("Human-activity-Recoginition/data/Y_testPca.npy", y_test)
+np.save("X_testPca.npy", testPca)
+np.save("Y_testPca.npy", y_test)
 
 #train['Activity'] = y_train
 #train['ActivityName'] = y_train_labels
@@ -81,10 +81,10 @@ inertialTrainData = np.transpose(inertialTrainData, (1, 2, 0))
 
 X_trainInert, X_validInert, Y_trainInert, Y_validInert = train_test_split(inertialTrainData, y_train, test_size=0.2, random_state=42)
 
-np.save("Human-activity-Recoginition/data/inertial_X_train.npy", X_trainInert)
-np.save("Human-activity-Recoginition/data/inertial_Y_train.npy", Y_trainInert)
-np.save("Human-activity-Recoginition/data/inertial_X_valid.npy", X_validInert)
-np.save("Human-activity-Recoginition/data/inertial_Y_valid.npy", Y_validInert)
+np.save("inertial_X_train.npy", X_trainInert)
+np.save("inertial_Y_train.npy", Y_trainInert)
+np.save("inertial_X_valid.npy", X_validInert)
+np.save("inertial_Y_valid.npy", Y_validInert)
 
 
 inertialTestData = []
@@ -100,5 +100,5 @@ inertialTestData.append(pd.read_csv("UCI HAR Dataset/test/Inertial Signals/total
 
 inertialTestData = np.transpose(inertialTestData, (1, 2, 0))
 
-np.save("Human-activity-Recoginition/data/inertial_X_test.npy", inertialTestData)
-np.save("Human-activity-Recoginition/data/inertial_Y_test.npy", y_test)
+np.save("inertial_X_test.npy", inertialTestData)
+np.save("inertial_Y_test.npy", y_test)

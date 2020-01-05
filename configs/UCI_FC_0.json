@@ -9,13 +9,12 @@
 
   "optimizer": "Adam",
   "learning_rate": 1e-5,
-  "mode": "test",
-  "best_file": "UC_FC_0-227-0.97.hdf5",
+  "mode": "train",
   "seed": 1337,
   "input_features": 561,
   "num_workers": 4,
   "batch_size": 512,
-  "max_epoch": 200,
+  "max_epoch": 250,
   "verbose_training": 1,
   "use_scheduler": false,
   

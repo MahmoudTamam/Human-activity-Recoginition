@@ -1,0 +1,31 @@
+{
+  "exp_name": "SF_RESNET50_0",
+  "agent": "SF_Agent",
+  "model": "ResNet50",
+  "single_label": true,
+  "data_loader": "SF_DataGenerator",
+  "data_dir": "data/statefarm_data/",
+  "train_csv": "data/statefarm_data/train.csv",
+  "valid_csv": "data/statefarm_data/valid.csv",
+  "resize": [480, 640],
+  "optimizer": "Adam",
+  "learning_rate": 1e-5,
+  "mode": "test",
+  "best_file": "SF_RESNET50_0-02-0.86.hdf5",
+  "seed": 1337,
+  "num_classes": 10,
+  "num_workers": 16,
+  "batch_size": 1,
+  "max_epoch": 200,
+  "verbose_training": 1,
+  "use_scheduler": false,
+  
+  "callbacks":{
+    "checkpoint_monitor": "val_acc",
+    "checkpoint_mode": "max",
+    "checkpoint_save_best_only": true,
+   "checkpoint_save_weights_only": false,
+    "checkpoint_verbose": true,
+    "tensorboard_write_graph": true
+  }
+}
