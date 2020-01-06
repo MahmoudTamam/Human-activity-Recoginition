@@ -14,7 +14,7 @@ Trained with time stamp readings 9x128.
 ### VOC 2012 Dataset (Indoor, Outdoor, ... )
 Trained with 512x512 images with/without bounding box cropping with random augmentation.
 ![Image description](etc/fig_8.PNG)
-![Image description](etc/fig_4.PNG)
+![Image description](etc/FIG_4.PNG)
 
 ### Statefarm dataset (Inside vehicle)
 Trained with 480x640 images with random augmentation.
